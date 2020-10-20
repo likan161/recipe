@@ -1,11 +1,7 @@
 ---
-
-- rpm_key:
-    state: present
-    key: https://rpms.remirepo.net/RPM-GPG-KEY-remi2020
-
 - name: add remi repository
   yum:
+    disable_gpg_check: True
     name: http://mirror.neolabs.kz/remi/enterprise/remi-release-{{ ansible_distribution_major_version }}.rpm
     state: present
 
