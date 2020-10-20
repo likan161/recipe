@@ -1,0 +1,20 @@
+---
+- name: restart php-fpm centos
+  service:
+    name: php{{ php_version }}-php-fpm
+    state: restarted
+
+- name: restart php-fpm debian
+  service:
+    name: php{{ php_version_u }}-fpm
+    state: restarted
+
+- name: restart nginx
+  service:
+    name: nginx
+    state: restarted
+
+- name: restart apache2
+  service:
+    name: apache2
+    state: restarted

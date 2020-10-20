@@ -1,0 +1,50 @@
+---
+- name: create site user
+  user:
+    name: "{{ ansible_hostname }}"
+    password: "{{ lookup('password', '/root/01-sftp_password chars=ascii_letters,digits,hexdigits length=15') | password_hash('sha512') }}"
+    shell: /sbin/nologin
+    home: /var/www/
+
+- name: insert site user name into user password file
+  blockinfile:
+    dest: /root/01-sftp_password
+    insertbefore: BOF
+    block: |
+      Доступ для загрузки файлов сайта (SFTP)
+      ip-адрес: {{ ansible_default_ipv4.address }}
+      Тип подключений: SFTP
+      Порт: 22
+      Папка сайта: /var/www/{{ vhost }}
+      Пользователь: {{ ansible_hostname }}
+
+- name: create user uid
+  user:
+    name: "{{ ansible_hostname }}"
+    uid: 48
+    group: apache
+    non_unique: yes
+
+- name: add user to sshd config
+  blockinfile:
+    marker: ''
+    path: /etc/ssh/sshd_config
+    insertafter: EOF
+    block: |
+      Match User {{ ansible_hostname }}
+      ForceCommand internal-sftp
+      PasswordAuthentication yes
+      #ChrootDirectory /var/www/{{ vhost }}/
+      PermitTunnel no
+      AllowAgentForwarding no
+      AllowTcpForwarding no
+      X11Forwarding no
+  notify: restart sshd
+
+- name: Change /var/www group and perm
+  file:
+    state: directory
+    path: /var/www
+    owner: root
+    group: apache
+    mode: 0775
