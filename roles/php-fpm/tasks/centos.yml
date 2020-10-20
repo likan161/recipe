@@ -2,7 +2,7 @@
 
 - rpm_key:
     state: present
-    key: https://rpms.remirepo.net/RPM-GPG-KEY-remi
+    key: https://rpms.remirepo.net/RPM-GPG-KEY-remi2020
 
 - name: add remi repository
   yum:
